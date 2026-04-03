@@ -1,0 +1,7 @@
+C:\Users\serge\source\repos\Modification\Modification\bin\Debug\Modification.exe.config
+C:\Users\serge\source\repos\Modification\Modification\bin\Debug\Modification.exe
+C:\Users\serge\source\repos\Modification\Modification\bin\Debug\Modification.pdb
+C:\Users\serge\source\repos\Modification\Modification\obj\Debug\Modification.csproj.AssemblyReference.cache
+C:\Users\serge\source\repos\Modification\Modification\obj\Debug\Modification.csproj.CoreCompileInputs.cache
+C:\Users\serge\source\repos\Modification\Modification\obj\Debug\Modification.exe
+C:\Users\serge\source\repos\Modification\Modification\obj\Debug\Modification.pdb
