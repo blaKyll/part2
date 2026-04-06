@@ -14,6 +14,9 @@ namespace Pong
     public partial class Form1 : Form
     {
         //Игровые объекты
+        bool goUp, goDown;//логические переменные для плавного управления
+        Random rnd=new Random();//общий объект класса рандом для создания случайных чисел
+        int paddleSpeed = 8;//скорость игрока
         int leftPaddleY = 200; // Левая ракетка
         int rightPaddleY = 200; // Правая ракетка
         int ballX = 400; // Мяч x
@@ -41,11 +44,15 @@ namespace Pong
             timer.Interval = 16; // Устанавливаем значение 16 для 60 кадров в секунду
             timer.Tick += Timer_Tick; // Запускаем обновление игры для каждого кадра 
             timer.Start(); // Запускаем таймер
+            this.KeyUp += Form1_KeyUp;
         }
         private void Timer_Tick(object sender, EventArgs e)
         {
             if (gameRuning)
             {
+                //дополнение плавного перемещения на основе нажатия клавиш
+                if (goUp && leftPaddleY > 0) leftPaddleY -= paddleSpeed;//плавное перемещение вверх
+                if(goDown&&leftPaddleY<this.Size.Height-100)leftPaddleY+=paddleSpeed;//плавное перемещение вниз
                 // двигаем мяч
                 ballX += ballSpeedX;
                 ballY += ballSpeedY;
@@ -55,17 +62,19 @@ namespace Pong
                     ballSpeedY = -ballSpeedY;
                 }
                 //отскок от левой ракетки
-                if (ballX<=50&&ballX>=30&&ballY>=leftPaddleY&&ballY<=leftPaddleY+100)
+                if (ballX<=45&&ballX>=30&&ballY>=leftPaddleY&&ballY<=leftPaddleY+100)
                 {
-                    ballSpeedX = -ballSpeedX;
-                    ballX = 50;//не даем мячу пройти сквозь границы ракетки 
+                    ballSpeedX = Math.Abs(ballSpeedX)+1;//гарантируем движение вправо 
+                    if(Math.Abs(ballSpeedX)<15)ballSpeedY +=(ballSpeedY>0)?1:-1;
+                    ballX = 46;//не даем мячу пройти сквозь границы ракетки, выталкиваем мяч, чтобы он не застрял в текстуре
 
                 }
                 //отскок от правой ракетки
-                if(ballX >= this.ClientSize.Width - 70 && ballX <= this.ClientSize.Width - 50 && ballY >= rightPaddleY && ballY <= rightPaddleY + 100)
+                if(ballX >= this.ClientSize.Width - 60 && ballX <= this.ClientSize.Width - 45 && ballY >= rightPaddleY && ballY <= rightPaddleY + 100)
                 {
-                    ballSpeedX = -ballSpeedX;
-                    ballX = this.ClientSize.Width - 70;
+                    ballSpeedX = -Math.Abs(ballSpeedX);//гарантируем движение влево
+                    if (Math.Abs(ballSpeedX) < 15) ballSpeedY += (ballSpeedY > 0) ? 1 : -1;
+                    ballX = this.ClientSize.Width - 61;
                 }
                 //гол слева
                 if (ballX <= 0)
@@ -123,31 +132,29 @@ namespace Pong
             // если игра окончена показываем победителя
             if (!gameRuning)
             {
-                string winner = (leftscore >= 5) ? "Левый победитель" : "Правый победит"; // записывает текст о победителе в переменную
+                string winner = (leftscore >= 5) ? "Левый победил" : "Правый победил"; // записывает текст о победителе в переменную
                 g.DrawString(winner, font, Brushes.Yellow, this.Width / 2 - 100, this.Height / 2); // Отрисовывем имя победителя желтым цветом по середние экрана
                 g.DrawString("Нажмите R для перезапуска", new Font("Arial", 16), Brushes.White, this.Width / 2 - 120, this.Height / 2 + 50); // Отрисовываем текст для информации о перезапуске
             }
         }
         // Управление клавиатурой
-        private void Form1_KeyDown(object sender, KeyEventArgs e)
+        private void Form1_KeyDown(object sender,KeyEventArgs e)
         {
-            // Левая ракетка w ввурх s вниз
-            if (e.KeyCode == Keys.W)
+            if (e.KeyCode == Keys.W) goUp = true;//ракетка двигается вверх пока нажата клавиша W
+            if(e.KeyCode==Keys.S) goDown = true;//ракетка двигается вниз пока нажата клавиша S
+            if (e.KeyCode == Keys.R && !gameRuning)//игра перезапускается
             {
-                leftPaddleY -= 20; // Если нажата W то вверх на 20 пикселей
+                leftscore = 0;rightscore = 0;
+                gameRuning = true;//флаг запуская игры активирован
+                ResetBall();//устанавливаем мяч по середине поля
+                timer.Start();//запускаем таймер для частоты кадров
             }
-            if (e.KeyCode == Keys.S)
-            {
-                leftPaddleY += 20; // Если нажата S то вниз на 20 пикселей
-            }
-            if (e.KeyCode == Keys.R) // Перезапускаем игру при нажатии R
-            {
-                leftscore = 0;
-                rightscore = 0;
-                ResetBall();
-                timer.Start();
-                // перезапускаем счет и игру
-            }
+        }
+        private void Form1_KeyUp(object sender, KeyEventArgs e)
+        {
+            //когда клавиша ракетка перестает двигаться
+            if (e.KeyCode == Keys.W) goUp = false;
+            if (e.KeyCode == Keys.S) goDown =false;
         }
     }
 }
